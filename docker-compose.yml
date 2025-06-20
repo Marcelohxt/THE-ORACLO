@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: oraclo
+      POSTGRES_USER: oraclo_user
+      POSTGRES_PASSWORD: oraclo_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oraclo_user -d oraclo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis para cache e filas
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicação ORACLO
+  web:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://oraclo_user:oraclo_password@db:5432/oraclo
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+    volumes:
+      - ./logs:/app/logs
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Celery para tarefas assíncronas
+  celery:
+    build: .
+    command: celery -A oraclo worker -l info
+    environment:
+      - DATABASE_URL=postgresql://oraclo_user:oraclo_password@db:5432/oraclo
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Celery Beat para tarefas agendadas
+  celery-beat:
+    build: .
+    command: celery -A oraclo beat -l info
+    environment:
+      - DATABASE_URL=postgresql://oraclo_user:oraclo_password@db:5432/oraclo
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Nginx para proxy reverso (opcional)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./staticfiles:/app/staticfiles
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data: 

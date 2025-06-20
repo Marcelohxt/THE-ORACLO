@@ -1,0 +1,2 @@
+import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oraclo.settings'); import django; django.setup(); from core.models import *; from django.utils import timezone; print('Django configurado')
+c1, _ = Category.objects.get_or_create(name='Mercados', slug='mercados'); c2, _ = Category.objects.get_or_create(name='Tecnologia', slug='tecnologia'); s1, _ = NewsSource.objects.get_or_create(name='Reuters', url='https://reuters.com'); print('Categorias e fontes criadas')

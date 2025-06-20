@@ -1,0 +1,102 @@
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+}
+.header {
+    background-color: #001f3f;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    color: #00ff00;
+    margin: 0;
+    font-size: 1.5em;
+}
+.nav, .controls {
+    display: flex;
+    gap: 10px;
+}
+.nav button, .controls button, .controls select {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+.nav button:hover, .controls button:hover {
+    background-color: #444;
+}
+.controls input {
+    background-color: #111;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 5px;
+    width: 200px;
+}
+.container {
+    padding: 10px;
+}
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.box {
+    background-color: #001f3f;
+    border: 1px solid #555;
+    width: calc(33.333% - 20px);
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+    transition: transform 0.2s;
+}
+.box:hover { transform: scale(1.02); }
+.news-title {
+    color: #00ffff;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+.news-meta {
+    color: #ffa500;
+    font-size: 0.8em;
+    margin-bottom: 10px;
+}
+.category {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75em;
+}
+.category.market { background: #ff8c00; }
+.category.tech { background: #00bfff; }
+.category.economy { background: #32cd32; }
+.ticker {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #111;
+    color: #0f0;
+    padding: 10px;
+    overflow: hidden;
+    font-size: 0.9em;
+}
+.ticker p { white-space: nowrap; animation: ticker 20s linear infinite; }
+@keyframes ticker { 0% { transform: translateX(100%);} 100% { transform: translateX(-100%);} }
+.spinner {
+    display: none;
+    border: 4px solid #333;
+    border-top: 4px solid #00ff00;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} } 
